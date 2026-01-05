@@ -15,11 +15,11 @@ class PostRepo {
         return body.map((dynamic a) {
           final b = a as Map<String, dynamic>;
           return PostModels(
-            postId: b["postId"],
-            id: b["id"],
-            name: a["name"],
-            body: a["body"],
-            email: a["email"],
+            postId: b["postId"]as int,
+            id: b["id"] as int,
+            name: a["name"] as String,
+            body: a["body"] as String,
+            email: a["email"] as String,
           );
         }).toList();
       }

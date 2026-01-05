@@ -6,3 +6,9 @@ abstract class PostApiEvents extends Equatable {
 }
 
 class FetchPostApiEvents extends PostApiEvents {}
+
+
+class SearchItemEvents extends PostApiEvents {
+  final String search;
+  SearchItemEvents({required this.search});
+}

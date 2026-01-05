@@ -36,25 +36,67 @@ class _PostApiScreenState extends State<PostApiScreen> {
             case PostStatus.failure:
               return Center(child: Text(state.message));
             case PostStatus.success:
-              return ListView.builder(
-                itemCount: state.models.length,
-                itemBuilder: (context, index) {
-                  final content = state.models[index];
-                  return Padding(
+              return Column(
+                children: [
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      shadowColor: Colors.black54,
-                      elevation: 5,
-                      child: ListTile(
-                        title: Text("Email: ${content.email}"),
-                        subtitle: Text(
-                          "Content: ${content.body}",
-                          textAlign: TextAlign.left,
-                        ),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Search with email",
+                        border: OutlineInputBorder(),
                       ),
+                      onChanged: (value) {
+                        context.read<PostBloc>().add(
+                          SearchItemEvents(search: value),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                  Expanded(
+                    child: state.searchMessage.isNotEmpty
+                        ? Center(child: Text(state.searchMessage.toString()))
+                        : ListView.builder(
+                            itemCount: state.tempList.isEmpty
+                                ? state.models.length
+                                : state.tempList.length,
+                            itemBuilder: (context, index) {
+                              if (state.tempList.isNotEmpty) {
+                                final content = state.tempList[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Card(
+                                    shadowColor: Colors.black54,
+                                    elevation: 5,
+                                    child: ListTile(
+                                      title: Text("Email: ${content.email}"),
+                                      subtitle: Text(
+                                        "Content: ${content.body}",
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                final content = state.models[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Card(
+                                    shadowColor: Colors.black54,
+                                    elevation: 5,
+                                    child: ListTile(
+                                      title: Text("Email: ${content.email}"),
+                                      subtitle: Text(
+                                        "Content: ${content.body}",
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                  ),
+                ],
               );
           }
         },
