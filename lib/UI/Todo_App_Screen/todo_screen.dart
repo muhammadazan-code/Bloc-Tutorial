@@ -12,48 +12,65 @@ class TodoAppScreen extends StatefulWidget {
 }
 
 class _TodoAppScreenState extends State<TodoAppScreen> {
+  late TodoAppBloc _todoAppBloc;
+
+  @override
+  void initState() {
+    _todoAppBloc = TodoAppBloc();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _todoAppBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Center(child: Text("T O D O  L I S T"))),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsetsGeometry.all(15),
-          child: BlocBuilder<TodoAppBloc, TodoAppState>(
-            builder: (context, state) {
-              if (state.todoList.isEmpty) {
-                return Center(child: Text("No founds"));
-              } else if (state.todoList.isNotEmpty) {
-                return ListView.builder(
-                  itemCount: state.todoList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(state.todoList[index].toString()),
-                      trailing: IconButton(
-                        onPressed: () {
-                          context.read<TodoAppBloc>().add(
-                            RemoveTodoEvents(task: state.todoList[index]),
-                          );
-                        },
-                        icon: Icon(Icons.delete),
-                      ),
-                    );
-                  },
-                );
-              } else {
-                return SizedBox();
-              }
-            },
+    return BlocProvider(
+      create: (context) => _todoAppBloc,
+      child: Scaffold(
+        appBar: AppBar(title: Center(child: Text("T O D O  L I S T"))),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsetsGeometry.all(15),
+            child: BlocBuilder<TodoAppBloc, TodoAppState>(
+              builder: (context, state) {
+                if (state.todoList.isEmpty) {
+                  return Center(child: Text("No founds"));
+                } else if (state.todoList.isNotEmpty) {
+                  return ListView.builder(
+                    itemCount: state.todoList.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(state.todoList[index].toString()),
+                        trailing: IconButton(
+                          onPressed: () {
+                            context.read<TodoAppBloc>().add(
+                              RemoveTodoEvents(task: state.todoList[index]),
+                            );
+                          },
+                          icon: Icon(Icons.delete),
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return SizedBox();
+                }
+              },
+            ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          for (var i = 0; i < 20; i++) {
-            context.read<TodoAppBloc>().add(AddTodoEvents(task: "task: $i"));
-          }
-        },
-        child: Icon(Icons.add),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            for (var i = 0; i < 20; i++) {
+              _todoAppBloc.add(AddTodoEvents(task: "task"));
+            }
+          },
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }

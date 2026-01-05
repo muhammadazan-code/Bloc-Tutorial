@@ -12,10 +12,18 @@ class PostApiScreen extends StatefulWidget {
 }
 
 class _PostApiScreenState extends State<PostApiScreen> {
+  late PostBloc _postBloc;
   @override
   void initState() {
     super.initState();
-    context.read<PostBloc>().add(FetchPostApiEvents());
+    _postBloc = PostBloc();
+    _postBloc.add(FetchPostApiEvents());
+  }
+
+  @override
+  void dispose() {
+    _postBloc.close();
+    super.dispose();
   }
 
   @override
@@ -26,80 +34,83 @@ class _PostApiScreenState extends State<PostApiScreen> {
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
       ),
-      body: BlocBuilder<PostBloc, PostState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case PostStatus.loading:
-              return Center(
-                child: CircularProgressIndicator(color: Colors.blue),
-              );
-            case PostStatus.failure:
-              return Center(child: Text(state.message));
-            case PostStatus.success:
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: "Search with email",
-                        border: OutlineInputBorder(),
+      body: BlocProvider(
+        create: (context) => _postBloc,
+        child: BlocBuilder<PostBloc, PostState>(
+          builder: (context, state) {
+            switch (state.status) {
+              case PostStatus.loading:
+                return Center(
+                  child: CircularProgressIndicator(color: Colors.blue),
+                );
+              case PostStatus.failure:
+                return Center(child: Text(state.message));
+              case PostStatus.success:
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          hintText: "Search with email",
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          context.read<PostBloc>().add(
+                            SearchItemEvents(search: value),
+                          );
+                        },
                       ),
-                      onChanged: (value) {
-                        context.read<PostBloc>().add(
-                          SearchItemEvents(search: value),
-                        );
-                      },
                     ),
-                  ),
-                  Expanded(
-                    child: state.searchMessage.isNotEmpty
-                        ? Center(child: Text(state.searchMessage.toString()))
-                        : ListView.builder(
-                            itemCount: state.tempList.isEmpty
-                                ? state.models.length
-                                : state.tempList.length,
-                            itemBuilder: (context, index) {
-                              if (state.tempList.isNotEmpty) {
-                                final content = state.tempList[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Card(
-                                    shadowColor: Colors.black54,
-                                    elevation: 5,
-                                    child: ListTile(
-                                      title: Text("Email: ${content.email}"),
-                                      subtitle: Text(
-                                        "Content: ${content.body}",
-                                        textAlign: TextAlign.left,
+                    Expanded(
+                      child: state.searchMessage.isNotEmpty
+                          ? Center(child: Text(state.searchMessage.toString()))
+                          : ListView.builder(
+                              itemCount: state.tempList.isEmpty
+                                  ? state.models.length
+                                  : state.tempList.length,
+                              itemBuilder: (context, index) {
+                                if (state.tempList.isNotEmpty) {
+                                  final content = state.tempList[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(
+                                      shadowColor: Colors.black54,
+                                      elevation: 5,
+                                      child: ListTile(
+                                        title: Text("Email: ${content.email}"),
+                                        subtitle: Text(
+                                          "Content: ${content.body}",
+                                          textAlign: TextAlign.left,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              } else {
-                                final content = state.models[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Card(
-                                    shadowColor: Colors.black54,
-                                    elevation: 5,
-                                    child: ListTile(
-                                      title: Text("Email: ${content.email}"),
-                                      subtitle: Text(
-                                        "Content: ${content.body}",
-                                        textAlign: TextAlign.left,
+                                  );
+                                } else {
+                                  final content = state.models[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(
+                                      shadowColor: Colors.black54,
+                                      elevation: 5,
+                                      child: ListTile(
+                                        title: Text("Email: ${content.email}"),
+                                        subtitle: Text(
+                                          "Content: ${content.body}",
+                                          textAlign: TextAlign.left,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                  ),
-                ],
-              );
-          }
-        },
+                                  );
+                                }
+                              },
+                            ),
+                    ),
+                  ],
+                );
+            }
+          },
+        ),
       ),
     );
   }
